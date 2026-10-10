@@ -1,0 +1,47 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/city/city_generator.gd" id="1_city"]
+
+[sub_resource type="Environment" id="Environment_main"]
+background_mode = 1
+background_color = Color(0.55, 0.72, 0.9, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.75, 0.75, 0.8, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ground"]
+albedo_color = Color(0.36, 0.42, 0.34, 1)
+roughness = 1.0
+
+[sub_resource type="BoxMesh" id="BoxMesh_ground"]
+size = Vector3(600, 1, 600)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ground"]
+size = Vector3(600, 1, 600)
+
+[node name="Main" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_main")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+rotation = Vector3(-0.9, 0.6, 0)
+shadow_enabled = true
+
+[node name="Ground" type="StaticBody3D" parent="."]
+
+[node name="Mesh" type="MeshInstance3D" parent="Ground"]
+position = Vector3(0, -0.5, 0)
+mesh = SubResource("BoxMesh_ground")
+surface_material_override/0 = SubResource("StandardMaterial3D_ground")
+
+[node name="Collision" type="CollisionShape3D" parent="Ground"]
+position = Vector3(0, -0.5, 0)
+shape = SubResource("BoxShape3D_ground")
+
+[node name="City" type="Node3D" parent="."]
+script = ExtResource("1_city")
+
+[node name="DebugCamera" type="Camera3D" parent="."]
+position = Vector3(0, 70, 140)
+rotation = Vector3(-0.45, 0, 0)
+current = true

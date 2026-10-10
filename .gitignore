@@ -1,0 +1,7 @@
+# Godot 4 local cache and editor state
+.godot/
+
+# Android export output
+/android/
+*.apk
+*.aab
