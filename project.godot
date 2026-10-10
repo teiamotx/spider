@@ -27,6 +27,8 @@ common/physics_interpolation=true
 [rendering]
 
 renderer/rendering_method="mobile"
+; The mobile renderer and Android export need ETC2/ASTC texture compression.
+textures/vram_compression/import_etc2_astc=true
 
 [input_devices]
 
