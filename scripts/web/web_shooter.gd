@@ -4,6 +4,8 @@ extends Node
 ## A ray from the camera's center attaches to the first "webbable" surface within range.
 ## Pressing again releases. While attached, the player script keeps the body on the rope.
 
+signal released
+
 const WEBBABLE_GROUP: StringName = &"webbable"
 
 @export var web_range: float = 60.0
@@ -36,6 +38,7 @@ func _physics_process(_delta: float) -> void:
 	if is_attached:
 		is_attached = false
 		print("Web released at %.1f m/s" % _body.velocity.length())
+		released.emit()
 	else:
 		_try_attach()
 

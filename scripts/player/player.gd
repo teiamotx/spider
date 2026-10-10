@@ -13,10 +13,20 @@ extends CharacterBody3D
 ## Stronger than walking gravity, so a long rope swings with a quicker period.
 @export var swing_gravity: float = 22.0
 @export var max_speed_cap: float = 40.0
+## Release counts as "near the top" when vertical speed is at most this (m/s)...
+@export var apex_vertical_speed: float = 4.0
+## ...and the rope is at least this far from straight down (degrees).
+@export var apex_min_angle_deg: float = 25.0
+@export var apex_boost_up: float = 3.0
+@export var apex_boost_forward: float = 3.0
 
 @onready var _input: PlayerInput = $PlayerInput
 @onready var _rig: CameraRig = $CameraRig
 @onready var _web: WebShooter = $WebShooter
+
+
+func _ready() -> void:
+	_web.released.connect(_on_web_released)
 
 
 func _physics_process(delta: float) -> void:
@@ -60,6 +70,22 @@ func _enforce_rope() -> void:
 	var radial: float = velocity.dot(outward)
 	if radial > 0.0:
 		velocity -= outward * radial
+
+
+## Releasing near the top of a swing adds a small lift and push, so the release feels like a launch.
+## Velocity is kept either way. The boost only adds to it.
+func _on_web_released() -> void:
+	if is_on_floor():
+		return
+	var outward: Vector3 = (global_position - _web.anchor_point).normalized()
+	var rope_angle: float = acos(clampf(outward.dot(Vector3.DOWN), -1.0, 1.0))
+	if absf(velocity.y) > apex_vertical_speed or rope_angle < deg_to_rad(apex_min_angle_deg):
+		return
+	velocity += Vector3.UP * apex_boost_up
+	var flat := Vector3(velocity.x, 0.0, velocity.z)
+	if flat.length() > 0.5:
+		velocity += flat.normalized() * apex_boost_forward
+	print("Apex release boost applied")
 
 
 ## Turns a stick vector into a world-space direction, using the camera's facing.
