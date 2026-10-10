@@ -36,18 +36,32 @@ jobs:
       - name: Download Godot and export templates
         run: |
           set -euo pipefail
-          base="https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable"
-          mkdir -p "$RUNNER_TEMP/godot"
+          release=$(curl -fsSL -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/godotengine/godot/releases/tags/${GODOT_VERSION}-stable")
+          echo "Assets in Godot ${GODOT_VERSION}-stable:"
+          echo "$release" | jq -r '.assets[].name'
 
-          curl -fsSL -o "$RUNNER_TEMP/godot/godot.zip" \
-            "$base/Godot_v${GODOT_VERSION}-stable_linux_headless.64.zip"
+          # Prefer the headless build. Fall back to the editor binary, which also runs with --headless.
+          godot_url=$(echo "$release" | jq -r '[.assets[] | select(.name | test("linux.*headless.*[.]zip$"))][0].browser_download_url // empty')
+          if [ -z "$godot_url" ]; then
+            godot_url=$(echo "$release" | jq -r '[.assets[] | select(.name | test("linux[.]x86_64[.]zip$"))][0].browser_download_url // empty')
+          fi
+          templates_url=$(echo "$release" | jq -r '[.assets[] | select(.name | test("export_templates.*[.]tpz$"))][0].browser_download_url // empty')
+          if [ -z "$godot_url" ] || [ -z "$templates_url" ]; then
+            echo "Could not find the Godot Linux build or export templates in the release" >&2
+            exit 1
+          fi
+          echo "Godot build: $godot_url"
+          echo "Templates: $templates_url"
+
+          mkdir -p "$RUNNER_TEMP/godot"
+          curl -fsSL -o "$RUNNER_TEMP/godot/godot.zip" "$godot_url"
           unzip -q "$RUNNER_TEMP/godot/godot.zip" -d "$RUNNER_TEMP/godot"
           bin=$(find "$RUNNER_TEMP/godot" -maxdepth 1 -type f -name "Godot_v*" ! -name "*.zip" | head -n 1)
           chmod +x "$bin"
           echo "GODOT_BIN=$bin" >> "$GITHUB_ENV"
 
-          curl -fsSL -o "$RUNNER_TEMP/godot/templates.tpz" \
-            "$base/Godot_v${GODOT_VERSION}-stable_export_templates.tpz"
+          curl -fsSL -o "$RUNNER_TEMP/godot/templates.tpz" "$templates_url"
           unzip -q "$RUNNER_TEMP/godot/templates.tpz" -d "$RUNNER_TEMP/godot/templates"
           templates_dir="$HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable"
           mkdir -p "$templates_dir"
