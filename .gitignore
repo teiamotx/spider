@@ -3,5 +3,6 @@
 
 # Android export output
 /android/
+/build/
 *.apk
 *.aab
