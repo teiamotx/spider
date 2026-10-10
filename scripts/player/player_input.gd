@@ -16,8 +16,6 @@ func _ready() -> void:
 	if _touch != null:
 		_touch.jump_pressed.connect(request_jump)
 		_touch.web_pressed.connect(func() -> void: web_pressed.emit())
-	# Temporary: step 4 replaces this print with the web raycast.
-	web_pressed.connect(func() -> void: print("Web pressed (placeholder until step 4)"))
 
 
 func _unhandled_input(event: InputEvent) -> void:
