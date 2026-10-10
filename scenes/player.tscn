@@ -1,8 +1,9 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://scripts/player/player.gd" id="1_player"]
 [ext_resource type="Script" path="res://scripts/player/player_input.gd" id="2_input"]
 [ext_resource type="Script" path="res://scripts/player/camera_rig.gd" id="3_rig"]
+[ext_resource type="Script" path="res://scripts/input/touch_controls.gd" id="4_touch"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_body"]
 radius = 0.4
@@ -37,3 +38,8 @@ script = ExtResource("3_rig")
 position = Vector3(0, 1, 6.5)
 rotation = Vector3(-0.15, 0, 0)
 current = true
+
+[node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="TouchControls" type="Control" parent="HUD"]
+script = ExtResource("4_touch")

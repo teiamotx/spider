@@ -1,17 +1,33 @@
 class_name PlayerInput
 extends Node
 ## Turns device input into the values the player reads each physics frame.
-## Step 2: keyboard only. Step 3 adds the touch joystick and buttons here.
+## Keyboard works in the editor. On phones, the touch controls add a joystick and two buttons.
+
+signal web_pressed
 
 const JUMP_BUFFER_MS: int = 150
 
 var _jump_requested_at_ms: int = -1000000
+var _touch: TouchControls = null
+
+
+func _ready() -> void:
+	_touch = get_node_or_null("../HUD/TouchControls") as TouchControls
+	if _touch != null:
+		_touch.jump_pressed.connect(request_jump)
+		_touch.web_pressed.connect(func() -> void: web_pressed.emit())
+	# Temporary: step 4 replaces this print with the web raycast.
+	web_pressed.connect(func() -> void: print("Web pressed (placeholder until step 4)"))
 
 
 func _unhandled_input(event: InputEvent) -> void:
 	var key := event as InputEventKey
-	if key != null and key.pressed and not key.echo and key.keycode == KEY_SPACE:
+	if key == null or not key.pressed or key.echo:
+		return
+	if key.keycode == KEY_SPACE:
 		request_jump()
+	elif key.keycode == KEY_E:
+		web_pressed.emit()
 
 
 ## Returns the move stick as a Vector2. x = right, y = forward. Length is at most 1.
@@ -25,6 +41,8 @@ func get_move_axis() -> Vector2:
 		axis.y += 1.0
 	if Input.is_key_pressed(KEY_S):
 		axis.y -= 1.0
+	if _touch != null:
+		axis += _touch.get_joystick_axis()
 	return axis.limit_length(1.0)
 
 
