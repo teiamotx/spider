@@ -1,6 +1,7 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://scripts/city/city_generator.gd" id="1_city"]
+[ext_resource type="PackedScene" path="res://scenes/player.tscn" id="2_player"]
 
 [sub_resource type="Environment" id="Environment_main"]
 background_mode = 1
@@ -41,7 +42,5 @@ shape = SubResource("BoxShape3D_ground")
 [node name="City" type="Node3D" parent="."]
 script = ExtResource("1_city")
 
-[node name="DebugCamera" type="Camera3D" parent="."]
-position = Vector3(0, 70, 140)
-rotation = Vector3(-0.45, 0, 0)
-current = true
+[node name="Player" parent="." instance=ExtResource("2_player")]
+position = Vector3(-150, 1, -150)
