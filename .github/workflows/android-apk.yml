@@ -25,14 +25,13 @@ jobs:
           distribution: temurin
           java-version: "17"
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-
       - name: Install Android platform and build tools
         run: |
           set -euo pipefail
-          yes | sdkmanager --licenses > /dev/null
-          sdkmanager "platforms;android-35" "build-tools;35.0.0"
+          echo "Android SDK: ${ANDROID_HOME:?ANDROID_HOME is not set on this runner}"
+          sdkmanager_bin=$(ls -d "$ANDROID_HOME"/cmdline-tools/*/bin/sdkmanager | sort -V | tail -n 1)
+          (yes || true) | "$sdkmanager_bin" --licenses > /dev/null
+          "$sdkmanager_bin" "platforms;android-35" "build-tools;35.0.0"
 
       - name: Download Godot and export templates
         run: |
