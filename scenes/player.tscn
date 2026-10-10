@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3]
+[gd_scene load_steps=12 format=3]
 
 [ext_resource type="Script" path="res://scripts/player/player.gd" id="1_player"]
 [ext_resource type="Script" path="res://scripts/player/player_input.gd" id="2_input"]
@@ -7,6 +7,7 @@
 [ext_resource type="Script" path="res://scripts/web/web_shooter.gd" id="5_shooter"]
 [ext_resource type="Script" path="res://scripts/web/web_line.gd" id="6_line"]
 [ext_resource type="Script" path="res://scripts/hud/crosshair.gd" id="7_crosshair"]
+[ext_resource type="Script" path="res://scripts/hud/debug_overlay.gd" id="8_debug"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_body"]
 radius = 0.4
@@ -59,3 +60,8 @@ script = ExtResource("4_touch")
 
 [node name="Crosshair" type="Control" parent="HUD"]
 script = ExtResource("7_crosshair")
+
+[node name="DebugOverlay" type="Label" parent="HUD"]
+theme_override_font_sizes/font_size = 18
+text = "FPS --"
+script = ExtResource("8_debug")
