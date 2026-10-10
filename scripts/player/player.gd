@@ -4,6 +4,7 @@ extends CharacterBody3D
 ## Walking is momentum-based: ground acceleration is firm, air acceleration is weak,
 ## so a jump keeps the speed you brought into it. Input is relative to the camera rig's yaw.
 ## While the web is attached, the player is a pendulum on a rope of fixed length.
+## The stick then pumps and steers with small forward and sideways pushes.
 
 @export var max_speed: float = 9.0
 @export var ground_accel: float = 14.0
@@ -13,6 +14,9 @@ extends CharacterBody3D
 ## Stronger than walking gravity, so a long rope swings with a quicker period.
 @export var swing_gravity: float = 22.0
 @export var max_speed_cap: float = 40.0
+## Stick pushes while swinging (m/s²). Sideways steers, forward pumps.
+@export var swing_side_accel: float = 4.0
+@export var swing_forward_accel: float = 4.0
 ## Release counts as "near the top" when vertical speed is at most this (m/s)...
 @export var apex_vertical_speed: float = 4.0
 ## ...and the rope is at least this far from straight down (degrees).
@@ -31,7 +35,7 @@ func _ready() -> void:
 
 func _physics_process(delta: float) -> void:
 	if _web.is_attached:
-		velocity.y -= swing_gravity * delta
+		_swing_control(delta)
 	else:
 		_walk_control(delta)
 
@@ -56,6 +60,14 @@ func _walk_control(delta: float) -> void:
 			velocity.y = jump_speed
 	else:
 		velocity.y -= gravity_strength * delta
+
+
+## Gravity plus the stick's pump and steer pushes. The rope limit is applied after the move.
+func _swing_control(delta: float) -> void:
+	var axis: Vector2 = _input.get_move_axis()
+	var push: Vector3 = _camera_relative(Vector2(axis.x * swing_side_accel, axis.y * swing_forward_accel))
+	velocity += push * delta
+	velocity.y -= swing_gravity * delta
 
 
 ## Keeps the body on the rope. Only the outward part of the velocity is removed,
